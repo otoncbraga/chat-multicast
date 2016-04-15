@@ -6,15 +6,17 @@ import java.net.MalformedURLException;
 import java.net.MulticastSocket;
 import java.rmi.Naming;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.Vector;
 
 /**
  * Created by otonbraga on 07/04/16.
  */
-public class SequencerImpl implements Sequencer {
+public class SequencerImpl extends UnicastRemoteObject implements Sequencer {
 
-    public static final int MAX_MSG_LENGTH = 1024;
-    public static final int GROUP_PORT = 1235;
+    public static final int MAX_MSG_LENGTH = 10240;
+    public static final int GROUP_PORT = 10000;
     private static final String ipAddr = "228.5.6.7";
     private String name;
     public static long sequence = 0;
@@ -23,19 +25,16 @@ public class SequencerImpl implements Sequencer {
     History history;
     Vector mySenders;
 
-    // lista de destinos <------- sequencerjoininfo
-
-
-    public SequencerImpl (String name) {
+    public SequencerImpl (String name) throws RemoteException {
         this.name = name;
         try {
-         this.history = new History();
-          this.mySenders = new Vector();
-          this.socket = new MulticastSocket();
-          this.groupAddr = InetAddress.getByName("228.5.6.7");
-        }
-        catch (Exception ex) {
-          System.out.println("Couldn't initialise seq: " + ex);
+            this.history = new History();
+            this.mySenders = new Vector();
+            this.socket = new MulticastSocket();
+            this.groupAddr = InetAddress.getByName("228.5.6.7");
+            System.out.println("passou aqui!");
+        } catch (Exception ex) {
+            System.out.println("Couldn't initialise seq: " + ex);
         }
     }
 
@@ -46,6 +45,8 @@ public class SequencerImpl implements Sequencer {
 
         // esse sender é o ip do cliente (remetente), logo eu devo criar um joinIfo a partir dele
         //return new SequencerJoinInfo(InetAddress.getByName(sender), sequence);
+
+        System.out.println("join");
 
         if (this.mySenders.contains(sender)) {
             throw new SequencerException(sender + " not unique");
@@ -113,8 +114,10 @@ public class SequencerImpl implements Sequencer {
         this.history.noteReceived(sender, lastSequenceReceived);
     }
 
-    public static void main (String args[]) throws MalformedURLException, RemoteException {
-        Naming.rebind("equipe3", new SequencerImpl("abestados"));
+    public static void main(String args[]) throws MalformedURLException, RemoteException {
+        System.setProperty("java.rmi.server.hostname", "192.168.1.25");
+        LocateRegistry.createRegistry(1099);
+        Naming.rebind("/TKSequencer", new SequencerImpl("TKSequencer"));
         System.out.println("data a lagata");
     }
 }

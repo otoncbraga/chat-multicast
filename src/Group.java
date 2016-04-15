@@ -27,24 +27,27 @@ public class Group implements Runnable {
        // create MulticastSocket and thread to listen on it,
        // perform other initialisations #
 
-        try{
-            String[] fred =
-            Naming.list("//mpc2/");
 
+        try{
+
+            String[] fred = Naming.list("/mpc2");
             for (int i = 0; i < fred.length; i++) {
                 System.out.println(String.valueOf(fred[i]));
             }
-
             this.myAddr = InetAddress.getLocalHost();
-            this.sequencer =
-            ((Sequencer)Naming.lookup("//" + host + "/equipe3"));
+            this.sequencer = ((Sequencer)Naming.lookup("rmi://" + host + "/TKSequencer"));
+
             this.myName = (senderName + this.myAddr);
+
             SequencerJoinInfo joinInfo = this.sequencer.join(this.myName);
             this.groupAddr = joinInfo.addr;
             this.lastSequenceRecd = joinInfo.sequence;
             System.out.println("ip of group: " + this.groupAddr);
+
             this.socket = new MulticastSocket(10000);
+
             this.socket.joinGroup(this.groupAddr);
+
             this.handler = handler;
             this.t = new Thread(this);
             this.t.start();
@@ -161,6 +164,6 @@ public class Group implements Runnable {
     }
 
     private Sequencer getSequencer(String sequencerHost) throws Exception {
-        return (Sequencer)Naming.lookup("rmi://" + sequencerHost + "/sequencer");
+        return (Sequencer)Naming.lookup("rmi://" + sequencerHost + "/equipe3");
     }
 }

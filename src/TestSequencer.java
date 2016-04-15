@@ -3,6 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.rmi.RemoteException;
 
 /**
  * Created by otonbraga on 07/04/16.
@@ -92,15 +93,10 @@ public class TestSequencer extends Frame implements Runnable, Group.MsgHandler, 
         }
     }
 
-    public static void main(String args[]) {
-        if (args.length < 2)
-        {
-            System.out.println("Usage: prog host clientName");
-        }
-        else
-        {
-            TestSequencer st = new TestSequencer("localhost", "oidim");
-            st.run();
-        }
+    public static void main(String args[]) throws RemoteException {
+        System.setProperty("java.rmi.server.hostname", "localhost");
+        //LocateRegistry.createRegistry(1099);
+        TestSequencer st = new TestSequencer("localhost", "/TKSequencer");
+        st.run();
     }
 }
