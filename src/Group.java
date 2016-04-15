@@ -45,7 +45,7 @@ public class Group implements Runnable {
             System.out.println("ip of group: " + this.groupAddr);
 
             this.socket = new MulticastSocket(10000);
-
+            System.out.println("entrou!");
             this.socket.joinGroup(this.groupAddr);
 
             this.handler = handler;
